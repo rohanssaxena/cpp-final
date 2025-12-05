@@ -14,5 +14,5 @@ This is the final project for CSCI 1300. It includes the core game logic impleme
 4. **Run** the game using the following command (all on a single line):
 
     ```bash
-    ./final
+    ./game
     ````
