@@ -1,8 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <cstdlib> // For srand and rand (spinner)
-#include <ctime>   // For time (seeding the random number generator)
+#include <cstdlib> 
+#include <ctime>  
 #include <vector>
 #include <sstream>
 #include "Player.h"
@@ -10,28 +10,28 @@
 
 using namespace std;
 
-// Structure for storing riddles
+// store question and answer for riddles
 struct Riddle {
     string question;
     string answer;
 };
 
-// Structure for storing random events
+// store random event info with description, path type, advisor, and discovery points change
 struct RandomEvent {
-    string description;
-    int pathType;      // 0 = Training Fellowship, 1 = Direct Lab Assignment
-    int advisor;       // 0 = none, 1-5 = different advisors
-    int discoveryPoints;
+    string description;      
+    int pathType;            
+    int advisor;             
+    int discoveryPoints;    
 };
 
-// Structure to hold game data (replaces global variables)
+// hold all game data loaded from files
 struct GameData {
-    vector<Player> availableCharacters;
-    vector<Riddle> riddles;
-    vector<RandomEvent> randomEvents;
+    vector<Player> availableCharacters;  
+    vector<Riddle> riddles;              
+    vector<RandomEvent> randomEvents;   
 };
 
-// Function to load characters from file (no const reference)
+// open file, skip header, read each line, parse pipe-delimited values, create player objects, add to vector
 bool loadCharacters(string filename, GameData& gameData) {
     ifstream file(filename);
     if (!file.is_open()) {
@@ -39,7 +39,7 @@ bool loadCharacters(string filename, GameData& gameData) {
     }
     
     string line;
-    getline(file, line); // Skip header line
+    getline(file, line); 
     
     while (getline(file, line)) {
         if (line.empty()) continue;
@@ -62,7 +62,7 @@ bool loadCharacters(string filename, GameData& gameData) {
     return true;
 }
 
-// Function to load riddles from file (no const reference)
+// open file, skip header, read each line, find pipe separator, split into question and answer, add to vector
 bool loadRiddles(string filename, GameData& gameData) {
     ifstream file(filename);
     if (!file.is_open()) {
@@ -70,7 +70,7 @@ bool loadRiddles(string filename, GameData& gameData) {
     }
     
     string line;
-    getline(file, line); // Skip header line
+    getline(file, line); 
     
     while (getline(file, line)) {
         if (line.empty()) continue;
@@ -78,8 +78,8 @@ bool loadRiddles(string filename, GameData& gameData) {
         size_t pipePos = line.find('|');
         if (pipePos != string::npos) {
             Riddle r;
-            r.question = line.substr(0, pipePos);
-            r.answer = line.substr(pipePos + 1);
+            r.question = line.substr(0, pipePos);        
+            r.answer = line.substr(pipePos + 1);         
             gameData.riddles.push_back(r);
         }
     }
@@ -88,7 +88,7 @@ bool loadRiddles(string filename, GameData& gameData) {
     return true;
 }
 
-// Function to load random events from file (no const reference)
+// open file, skip header and comment lines, read each line, parse pipe-delimited values, convert to ints, add to vector
 bool loadRandomEvents(string filename, GameData& gameData) {
     ifstream file(filename);
     if (!file.is_open()) {
@@ -96,11 +96,11 @@ bool loadRandomEvents(string filename, GameData& gameData) {
     }
     
     string line;
-    getline(file, line); // Skip header line
-    getline(file, line); // Skip comment line
+    getline(file, line);
+    getline(file, line);
     
     while (getline(file, line)) {
-        if (line.empty() || line[0] == '/') continue; // Skip comments
+        if (line.empty() || line[0] == '/') continue;
         
         stringstream ss(line);
         string desc, pathType, advisor, dp;
@@ -122,7 +122,7 @@ bool loadRandomEvents(string filename, GameData& gameData) {
     return true;
 }
 
-// DNA Task 1: Similarity (Equal-Length) - Blue tiles
+// if strands different length or empty return 0, else count matches at each position, return matches divided by total
 double strandSimilarity(string strand1, string strand2) {
     if (strand1.length() != strand2.length() || strand1.length() == 0) {
         return 0.0;
@@ -140,7 +140,7 @@ double strandSimilarity(string strand1, string strand2) {
     return (double)matches / (double)total;
 }
 
-// DNA Task 2: Similarity (Unequal-Length) - Pink tiles
+// if either empty return -1, if input shorter compare from start return 0, if input longer slide target along input, find best match position, return index
 int bestStrandMatch(string input_strand, string target_strand) {
     if (input_strand.length() == 0 || target_strand.length() == 0) {
         return -1;
@@ -149,7 +149,6 @@ int bestStrandMatch(string input_strand, string target_strand) {
     double bestScore = 0.0;
     int bestIndex = 0;
     
-    // If input is shorter or equal, slide it along target (best match always at start of input)
     if (input_strand.length() <= target_strand.length()) {
         int matches = 0;
         int compareLen = input_strand.length();
@@ -161,10 +160,9 @@ int bestStrandMatch(string input_strand, string target_strand) {
                 matches++;
             }
         }
-        return 0; // Best match starts at beginning of input
+        return 0;
     }
     
-    // If input is longer, slide target along input
     for (int i = 0; i <= (int)(input_strand.length() - target_strand.length()); i++) {
         int matches = 0;
         for (int j = 0; j < (int)target_strand.length(); j++) {
@@ -175,14 +173,14 @@ int bestStrandMatch(string input_strand, string target_strand) {
         double score = (double)matches / (double)target_strand.length();
         if (score > bestScore) {
             bestScore = score;
-            bestIndex = i; // Position in input_strand where best match starts
+            bestIndex = i;
         }
     }
     
     return bestIndex;
 }
 
-// DNA Task 3: Mutation Identification - Red tiles
+// find best alignment, determine shorter and longer strand, compare character by character, detect substitutions insertions deletions, print each mutation, handle remaining chars
 void identifyMutations(string input_strand, string target_strand) {
     int bestIndex = bestStrandMatch(input_strand, target_strand);
     
@@ -204,7 +202,6 @@ void identifyMutations(string input_strand, string target_strand) {
             inputPos++;
             targetPos++;
         } else {
-            // Check for substitution
             if (inputPos + 1 < (int)shorter.length() && targetPos + 1 < (int)longer.length() &&
                 shorter[inputPos + 1] == longer[targetPos + 1]) {
                 cout << "Substitution at position " << inputPos << ": " 
@@ -212,14 +209,12 @@ void identifyMutations(string input_strand, string target_strand) {
                 inputPos++;
                 targetPos++;
             }
-            // Check for insertion
             else if (inputPos < (int)shorter.length() && targetPos + 1 < (int)longer.length() &&
                      shorter[inputPos] == longer[targetPos + 1]) {
                 cout << "Insertion at position " << targetPos << ": " 
                      << longer[targetPos] << " inserted" << endl;
                 targetPos++;
             }
-            // Check for deletion
             else if (inputPos + 1 < (int)shorter.length() && targetPos < (int)longer.length() &&
                      shorter[inputPos + 1] == longer[targetPos]) {
                 cout << "Deletion at position " << inputPos << ": " 
@@ -234,7 +229,6 @@ void identifyMutations(string input_strand, string target_strand) {
         }
     }
     
-    // Handle remaining characters
     while (targetPos < (int)longer.length()) {
         cout << "Insertion at position " << targetPos << ": " 
              << longer[targetPos] << " inserted" << endl;
@@ -247,7 +241,7 @@ void identifyMutations(string input_strand, string target_strand) {
     }
 }
 
-// DNA Task 4: Transcribe DNA to RNA - Brown tiles
+// loop through strand, if char is T replace with U, else keep same, print both dna and rna
 void transcribeDNAtoRNA(string strand) {
     string rna = "";
     for (int i = 0; i < (int)strand.length(); i++) {
@@ -261,7 +255,6 @@ void transcribeDNAtoRNA(string strand) {
     cout << "RNA: " << rna << endl;
 }
 
-// Function to convert string to lowercase (no range-based for loop)
 string toLowercase(string str) {
     string result = "";
     for (int i = 0; i < (int)str.length(); i++) {
@@ -274,10 +267,10 @@ string toLowercase(string str) {
     return result;
 }
 
-// Function to ask a riddle
+// if no riddles return true, pick random riddle, ask question, get answer, compare lowercase versions, award or deduct points
 bool askRiddle(Player& player, GameData& gameData) {
     if (gameData.riddles.size() == 0) {
-        return true; // No riddles available, assume correct
+        return true;
     }
     
     int riddleIndex = rand() % gameData.riddles.size();
@@ -307,24 +300,23 @@ bool askRiddle(Player& player, GameData& gameData) {
     }
 }
 
-// Function to trigger a random event
+// filter events by tile color and path type, pick random valid event, check if advisor protects, apply discovery points change
 void triggerRandomEvent(Player& player, char tileColor, GameData& gameData) {
     if (gameData.randomEvents.size() == 0) {
         return;
     }
     
-    // Filter events based on tile color (no range-based for loop)
     vector<RandomEvent> validEvents;
     
     for (int i = 0; i < (int)gameData.randomEvents.size(); i++) {
         RandomEvent event = gameData.randomEvents[i];
         bool isValid = false;
         
-        if (tileColor == 'B') { // Blue = Training Fellowship
+        if (tileColor == 'B') {
             isValid = (event.pathType == 0);
-        } else if (tileColor == 'P') { // Pink = Direct Lab Assignment
+        } else if (tileColor == 'P') {
             isValid = (event.pathType == 1);
-        } else { // Red, Brown, Purple can be either
+        } else {
             isValid = true;
         }
         
@@ -343,7 +335,6 @@ void triggerRandomEvent(Player& player, char tileColor, GameData& gameData) {
     cout << "\n=== RANDOM EVENT ===" << endl;
     cout << e.description << endl;
     
-    // Check for advisor protection
     bool protectedByAdvisor = false;
     if (e.advisor > 0 && e.discoveryPoints < 0 && player.getAdvisor() == e.advisor) {
         protectedByAdvisor = true;
@@ -362,7 +353,7 @@ void triggerRandomEvent(Player& player, char tileColor, GameData& gameData) {
     }
 }
 
-// Function to handle DNA task on Blue tile
+// get two dna strands from user, check equal length, calculate similarity, award points based on score
 bool handleBlueTileTask(Player& player) {
     cout << "\n=== DNA Task 1: Similarity (Equal-Length) ===" << endl;
     cout << "Compare two DNA strands of equal length." << endl;
@@ -399,7 +390,7 @@ bool handleBlueTileTask(Player& player) {
     }
 }
 
-// Function to handle DNA task on Pink tile
+// get two dna strands from user, find best match position, calculate similarity at that position, award points based on score
 bool handlePinkTileTask(Player& player) {
     cout << "\n=== DNA Task 2: Similarity (Unequal-Length) ===" << endl;
     cout << "Find the best alignment between two DNA strands." << endl;
@@ -419,7 +410,6 @@ bool handlePinkTileTask(Player& player) {
     
     cout << "Best match found at index: " << bestIndex << endl;
     
-    // Calculate similarity at best position
     string shorter = input_strand;
     string longer = target_strand;
     if (input_strand.length() > target_strand.length()) {
@@ -454,7 +444,7 @@ bool handlePinkTileTask(Player& player) {
     }
 }
 
-// Function to handle DNA task on Red tile
+// get two dna strands from user, call identify mutations, award points
 bool handleRedTileTask(Player& player) {
     cout << "\n=== DNA Task 3: Mutation Identification ===" << endl;
     cout << "Identify mutations between two DNA sequences." << endl;
@@ -474,7 +464,7 @@ bool handleRedTileTask(Player& player) {
     return true;
 }
 
-// Function to handle DNA task on Brown tile
+// get dna strand from user, transcribe to rna, award points
 void handleBrownTileTask(Player& player) {
     cout << "\n=== DNA Task 4: Transcribe DNA to RNA ===" << endl;
     cout << "Convert a DNA sequence to RNA." << endl;
@@ -490,7 +480,7 @@ void handleBrownTileTask(Player& player) {
     player.enforceMinimumStats();
 }
 
-// Function to handle tile events
+// get tile color at player position, switch on color, call appropriate handler or do nothing, trigger random event
 void handleTileEvent(Board& board, Player& player, int playerIndex, GameData& gameData) {
     int pos = player.getPosition();
     char tileColor = board.getTileColor(playerIndex, pos);
@@ -498,23 +488,23 @@ void handleTileEvent(Board& board, Player& player, int playerIndex, GameData& ga
     cout << "\n=== TILE EVENT ===" << endl;
     
     switch (tileColor) {
-        case 'G': // Green - Regular tile, nothing special
+        case 'G':
             cout << "You landed on a regular tile. Nothing happens." << endl;
             break;
             
-        case 'B': // Blue - Training Fellowship (DNA Task 1)
+        case 'B':
             cout << "You landed on a Blue tile (Training Fellowship)!" << endl;
             handleBlueTileTask(player);
             triggerRandomEvent(player, 'B', gameData);
             break;
             
-        case 'P': // Pink - Direct Lab Assignment (DNA Task 2)
+        case 'P':
             cout << "You landed on a Pink tile (Direct Lab Assignment)!" << endl;
             handlePinkTileTask(player);
             triggerRandomEvent(player, 'P', gameData);
             break;
             
-        case 'R': // Red - Challenge tile (DNA Task 3)
+        case 'R':
             cout << "You landed on a Red tile (Challenge)!" << endl;
             if (handleRedTileTask(player)) {
                 cout << "Challenge completed successfully!" << endl;
@@ -522,15 +512,15 @@ void handleTileEvent(Board& board, Player& player, int playerIndex, GameData& ga
             triggerRandomEvent(player, 'R', gameData);
             break;
             
-        case 'T': // Brown - Special event (DNA Task 4)
+        case 'T':
             cout << "You landed on a Brown tile (Special Event)!" << endl;
             handleBrownTileTask(player);
             triggerRandomEvent(player, 'T', gameData);
             break;
             
-        case 'U': { // Purple - Bonus tile
+        case 'U': {
             cout << "You landed on a Purple tile (Bonus)!" << endl;
-            int bonus = 300 + (rand() % 201); // 300-500 bonus
+            int bonus = 300 + (rand() % 201);
             cout << "You gain " << bonus << " Discovery Points!" << endl;
             player.updateDiscoverPoints(bonus);
             player.enforceMinimumStats();
@@ -538,7 +528,7 @@ void handleTileEvent(Board& board, Player& player, int playerIndex, GameData& ga
             break;
         }
             
-        case 'O': // Orange - Finish line
+        case 'O':
             cout << "Congratulations! You reached the finish line!" << endl;
             break;
             
@@ -547,7 +537,6 @@ void handleTileEvent(Board& board, Player& player, int playerIndex, GameData& ga
     }
 }
 
-// Display character selection menu
 void displayCharacterMenu(GameData& gameData, vector<bool>& chosen) {
     cout << "\n=== Available Characters ===" << endl;
     for (int i = 0; i < (int)gameData.availableCharacters.size(); i++) {
@@ -563,7 +552,7 @@ void displayCharacterMenu(GameData& gameData, vector<bool>& chosen) {
     }
 }
 
-// Character selection function
+// show menu, get choice, validate choice, mark character as chosen, return selected player
 Player selectCharacter(int playerNum, GameData& gameData, vector<bool>& chosen) {
     cout << "\n=== Player " << playerNum << " Character Selection ===" << endl;
     displayCharacterMenu(gameData, chosen);
@@ -571,7 +560,7 @@ Player selectCharacter(int playerNum, GameData& gameData, vector<bool>& chosen) 
     int choice;
     cout << "Enter the number of your chosen character: ";
     cin >> choice;
-    cin.ignore(); // Clear newline
+    cin.ignore();
     
     while (choice < 1 || choice > (int)gameData.availableCharacters.size() || chosen[choice - 1]) {
         cout << "Invalid choice. Please select an available character: ";
@@ -585,7 +574,7 @@ Player selectCharacter(int playerNum, GameData& gameData, vector<bool>& chosen) 
     return selected;
 }
 
-// Path type selection function
+// show path options, get choice, apply stat changes based on choice, set path type
 void selectPathType(Player& player) {
     cout << "\n=== Path Type Selection ===" << endl;
     cout << "Choose your path:" << endl;
@@ -610,7 +599,6 @@ void selectPathType(Player& player) {
     }
     
     if (choice == 1) {
-        // Training Fellowship
         player.setPathType(0);
         player.updateDiscoverPoints(-5000);
         player.updateAccuracy(500);
@@ -619,7 +607,6 @@ void selectPathType(Player& player) {
         player.enforceMinimumStats();
         cout << "You chose Training Fellowship!" << endl;
     } else {
-        // Direct Lab Assignment
         player.setPathType(1);
         player.updateDiscoverPoints(5000);
         player.updateAccuracy(200);
@@ -630,10 +617,10 @@ void selectPathType(Player& player) {
     }
 }
 
-// Advisor selection function
+// if not training fellowship return, show advisor options, get choice, set advisor
 void selectAdvisor(Player& player) {
     if (player.getPathType() != 0) {
-        return; // Only Training Fellowship gets advisors
+        return;
     }
     
     cout << "\n=== Advisor Selection ===" << endl;
@@ -659,7 +646,6 @@ void selectAdvisor(Player& player) {
     cout << "You selected advisor " << choice << "!" << endl;
 }
 
-// Display main menu with 5+ options
 void displayMainMenu(Player& player) {
     cout << "\n=== Main Menu ===" << endl;
     cout << "1. Check Player Progress" << endl;
@@ -670,13 +656,12 @@ void displayMainMenu(Player& player) {
     cout << "Enter your choice (1-5): ";
 }
 
-// Handle main menu choice with secondary layers
+// get menu choice, handle each option with submenus where needed, return choice code
 int handleMenuChoice(Player& player, Board& board, int playerIndex) {
     string choice;
     getline(cin, choice);
     
     if (choice == "1") {
-        // Check Player Progress - secondary layer
         cout << "\n=== Player Progress ===" << endl;
         cout << "1. Review Discover Points" << endl;
         cout << "2. Review Trait Stats" << endl;
@@ -696,20 +681,17 @@ int handleMenuChoice(Player& player, Board& board, int playerIndex) {
         }
         return 1;
     } else if (choice == "2") {
-        // Review Character
         cout << "\n=== Character Information ===" << endl;
         cout << "Character Name: " << player.getCharacterName() << endl;
         cout << "Experience: " << player.getExperience() << endl;
         return 1;
     } else if (choice == "3") {
-        // Check Position
         cout << "\n=== Current Position ===" << endl;
         cout << "Position: " << player.getPosition() << " / 51" << endl;
         cout << "\n=== Board State ===" << endl;
         board.displayBoard();
         return 1;
     } else if (choice == "4") {
-        // Review Advisor - secondary layer
         if (player.getAdvisor() == 0) {
             cout << "\nYou do not have an advisor (Direct Lab Assignment path)." << endl;
         } else {
@@ -740,14 +722,14 @@ int handleMenuChoice(Player& player, Board& board, int playerIndex) {
         }
         return 1;
     } else if (choice == "5") {
-        return 2; // Move Forward
+        return 2;
     } else {
         cout << "Invalid choice. Please enter 1-5." << endl;
         return 0;
     }
 }
 
-// Write game stats to file
+// open file, write player stats for both players, close file
 void writeGameStats(Player player1, Player player2, string filename) {
     ofstream file(filename);
     if (!file.is_open()) {
@@ -779,11 +761,10 @@ void writeGameStats(Player player1, Player player2, string filename) {
     cout << "Game statistics written to " << filename << endl;
 }
 
-// Calculate final Discover Points with trait bonuses
+// start with base discovery points, add 1000 for every 100 points in accuracy efficiency and insight
 int calculateFinalDiscoverPoints(Player player) {
     int finalDP = player.getDiscoverPoints();
     
-    // Add 1000 DP for every 100 points in Accuracy, Efficiency, or Insight
     finalDP = finalDP + (player.getAccuracy() / 100) * 1000;
     finalDP = finalDP + (player.getEfficiency() / 100) * 1000;
     finalDP = finalDP + (player.getInsight() / 100) * 1000;
@@ -791,18 +772,15 @@ int calculateFinalDiscoverPoints(Player player) {
     return finalDP;
 }
 
+// seed random, load game data, initialize board, let players select characters and paths, game loop: alternate turns, show menu, roll dice, move, display board, handle tile events, check win condition, calculate final scores, write stats
 int main() {
-    // Seed the random number generator
     srand(time(nullptr));
     
-    // Initialize game data structure (replaces globals)
     GameData gameData;
     
-    // Load game data
     cout << "Loading game data..." << endl;
     if (!loadCharacters("characters.txt", gameData)) {
         cout << "Warning: Could not load characters.txt. Using default characters." << endl;
-        // Add default characters
         gameData.availableCharacters.push_back(Player("Dr.Leo", 5, 500, 500, 1000, 20000));
         gameData.availableCharacters.push_back(Player("Dr.Helix", 8, 900, 600, 600, 20000));
     }
@@ -813,10 +791,8 @@ int main() {
         cout << "Warning: Could not load random_events.txt." << endl;
     }
     
-    // Initialize game board
     Board gameBoard;
     
-    // Character selection
     cout << "\n=== Journey Through Genome ===" << endl;
     vector<bool> chosen(gameData.availableCharacters.size(), false);
     
@@ -832,24 +808,20 @@ int main() {
         selectAdvisor(player2);
     }
     
-    // Initialize board positions
     gameBoard.setPlayerPosition(0, 0);
     gameBoard.setPlayerPosition(1, 0);
     
     cout << "\n=== Game Starting! ===" << endl;
     
-    // Main Game Loop
     bool game_over = false;
     int turn = 1;
     bool player1Finished = false;
     bool player2Finished = false;
     
     while (!game_over) {
-        // Determine which player's turn it is
         Player& currentPlayer = (turn % 2 != 0) ? player1 : player2;
         int currentPlayerIndex = (turn % 2 != 0) ? 0 : 1;
         
-        // Skip turn if player already finished
         if ((turn % 2 != 0 && player1Finished) || (turn % 2 == 0 && player2Finished)) {
             turn++;
             continue;
@@ -860,19 +832,17 @@ int main() {
              << currentPlayer.getCharacterName() << ") ---" << endl;
         cout << "========================================" << endl;
         
-        // 1. Display Main Menu and handle choice
         int menuChoice = 0;
         while (menuChoice != 2) {
             displayMainMenu(currentPlayer);
             menuChoice = handleMenuChoice(currentPlayer, gameBoard, currentPlayerIndex);
             if (menuChoice == 0) {
-                continue; // Invalid choice, try again
+                continue;
             }
         }
         
-        // 2. Player Movement (Spinner Logic)
         cout << "\nRolling the dice..." << endl;
-        int steps = rand() % 6 + 1; // Generates 1 to 6
+        int steps = rand() % 6 + 1;
         cout << "You rolled: " << steps << endl;
         
         int oldPosition = currentPlayer.getPosition();
@@ -881,20 +851,16 @@ int main() {
         
         cout << "Moving from position " << oldPosition << " to position " << newPosition << endl;
         
-        // Sync player positions with board
         gameBoard.setPlayerPosition(0, player1.getPosition());
         gameBoard.setPlayerPosition(1, player2.getPosition());
         
-        // 3. Update and Display Board
         cout << "\n=== Current Board State ===" << endl;
         gameBoard.displayBoard();
         
-        // 4. Trigger Tile Event (only if player moved to a new tile)
         if (newPosition != oldPosition && newPosition < 51) {
             handleTileEvent(gameBoard, currentPlayer, currentPlayerIndex, gameData);
         }
         
-        // 5. Check if player reached finish
         if (currentPlayer.getPosition() >= 51) {
             if (turn % 2 != 0) {
                 player1Finished = true;
@@ -905,11 +871,9 @@ int main() {
             }
         }
         
-        // 6. Check End Condition (ALL players must reach finish)
         if (player1Finished && player2Finished) {
             game_over = true;
             
-            // Calculate final Discover Points
             int finalDP1 = calculateFinalDiscoverPoints(player1);
             int finalDP2 = calculateFinalDiscoverPoints(player2);
             
@@ -936,7 +900,6 @@ int main() {
             }
             cout << "========================================" << endl;
             
-            // Write game stats to file
             writeGameStats(player1, player2, "game_stats.txt");
         }
         

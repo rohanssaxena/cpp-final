@@ -1,3 +1,0 @@
-struct Tile {
-    char color;
-};
