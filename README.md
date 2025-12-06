@@ -1,7 +1,9 @@
 # CSCI 1300 Final Project
 
 ## Project Description
-This is the final project for CSCI 1300. It includes the core game logic implemented in C++.
+This is the final project for CSCI 1300. 
+
+## Worked with Michael Solorio in the beginning stages of the project.
 
 ## How to Run
 
