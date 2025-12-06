@@ -1,9 +1,7 @@
 # CSCI 1300 Final Project
 
 ## Project Description
-This is the final project for CSCI 1300. 
-
-## Worked with Michael Solorio in the beginning stages of the project.
+This is the final project for CSCI 1300. Collaborated with Michael Solorio in the beginning stages of the project.
 
 ## How to Run
 
