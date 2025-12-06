@@ -14,6 +14,8 @@ private:
     int insight;
     int discoverPoints;
     int position; // Current tile index on the board
+    int pathType; // 0 = Training Fellowship, 1 = Direct Lab Assignment
+    int advisor;  // 0 = none, 1-5 = different advisors
 
 public:
     // Required constructor (Must not use 'this->')
@@ -25,6 +27,8 @@ public:
         insight = ins;
         discoverPoints = dp;
         position = 0; // Starts at tile 0
+        pathType = -1; // Not set
+        advisor = 0;   // No advisor
     }
     
     // Default Constructor (Optional but good practice)
@@ -36,6 +40,8 @@ public:
         insight = 0;
         discoverPoints = 0;
         position = 0;
+        pathType = -1; // Not set
+        advisor = 0;   // No advisor
     }
 
     // --- Required Getters (Must return by value) ---
@@ -59,6 +65,12 @@ public:
     }
     int getPosition() {
         return position;
+    }
+    int getPathType() {
+        return pathType;
+    }
+    int getAdvisor() {
+        return advisor;
     }
 
     // --- Required Setters (Must not use pass-by-reference) ---
@@ -85,6 +97,17 @@ public:
         if (position > 51) { // Cap at the final tile
             position = 51; 
         }
+    }
+    void setPathType(int path) {
+        pathType = path;
+    }
+    void setAdvisor(int adv) {
+        advisor = adv;
+    }
+    void enforceMinimumStats() {
+        if (accuracy < 100) accuracy = 100;
+        if (efficiency < 100) efficiency = 100;
+        if (insight < 100) insight = 100;
     }
 };
 
